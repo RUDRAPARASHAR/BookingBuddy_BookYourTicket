@@ -53,7 +53,9 @@ public class WebSecurityConfig {
         	        new AntPathRequestMatcher("/api/tickets/book"),
         	        new AntPathRequestMatcher("/api/tickets/payment"),
         	        new AntPathRequestMatcher("/api/tickets/updatePaymentStatus"),
-        	        new AntPathRequestMatcher("/api/tickets/my") // ✅ Add this
+        	        new AntPathRequestMatcher("/api/tickets/my"),
+        	        new AntPathRequestMatcher("/api/admin/cancel/**", "PUT")
+
         	    )
         	)
 

@@ -12,41 +12,107 @@
 
     <div class="container">
         <h2>Admin Panel</h2>
-        <div class="admin-content">
-            <p>Welcome to the BookingBuddy Administration Dashboard!</p>
-            <p>This section is accessible only to users with the ADMIN role.</p>
-            <p>Future functionalities for managing users, services, and bookings will appear here.</p>
-            <p><i class="fas fa-tools"></i> Under Construction <i class="fas fa-tools"></i></p>
-        </div>
+<div class="admin-content">
+    <h3>Ticket Statistics</h3>
+    <div id="adminStats" style="margin-bottom: 2rem;">
+        <p>Total Tickets: <strong id="totalTickets">...</strong></p>
+        <p>Paid: <strong id="paidTickets">...</strong></p>
+        <p>Pending: <strong id="pendingTickets">...</strong></p>
+        <p>Cancelled: <strong id="cancelledTickets">...</strong></p>
     </div>
+
+    <h3>All Bookings</h3>
+    <div id="ticketTableContainer">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Booked On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ticketTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
 
     <footer th:replace="~{fragments/common :: footer}"></footer>
     <div th:replace="~{fragments/common :: modals}"></div>
 
     <script th:src="@{/js/app.js}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('/api/admin/dashboard');
-                if (!response.ok) {
-                    if (response.status === 403) { // Forbidden
-                        showMessageModal('error', 'Access Denied', 'You do not have administrative privileges. Redirecting to homepage.');
-                        setTimeout(() => window.location.href = '/', 2000);
-                    } else if (response.status === 401) { // Unauthorized
-                        showMessageModal('error', 'Authentication Required', 'Please log in to access the admin panel. Redirecting to login.');
-                        setTimeout(() => window.location.href = '/login', 2000);
-                    } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                }
-                const data = await response.text();
-                console.log("Admin Data:", data);
-                // You could display this data on the page if needed
-            } catch (error) {
-                console.error('Error fetching admin data:', error);
-                showMessageModal('error', 'Error', 'An error occurred while fetching admin data.');
-            }
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        showLoading("Loading admin data...");
+
+        // Load stats
+        const statsRes = await fetch('/api/admin/stats');
+        const stats = await statsRes.json();
+        document.getElementById('totalTickets').textContent = stats.total;
+        document.getElementById('paidTickets').textContent = stats.paid;
+        document.getElementById('pendingTickets').textContent = stats.pending;
+        document.getElementById('cancelledTickets').textContent = stats.cancelled;
+
+        // Load tickets
+        const ticketRes = await fetch('/api/admin/tickets');
+        const tickets = await ticketRes.json();
+        const tbody = document.getElementById('ticketTableBody');
+        tbody.innerHTML = '';
+
+        tickets.forEach(ticket => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${ticket.id}</td>
+                <td>${ticket.serviceName || ticket.serviceType}</td>
+                <td>${ticket.user?.username || 'N/A'}</td>
+                <td>${ticket.paymentStatus}</td>
+                <td>${ticket.quantity}</td>
+                <td>₹${ticket.totalPrice.toFixed(2)}</td>
+                <td>${new Date(ticket.bookingDate).toLocaleString()}</td>
+                <td>
+                    ${ticket.paymentStatus === 'PENDING' ? `<button onclick="cancelTicket(${ticket.id})">Cancel</button>` : '—'}
+                </td>
+            `;
+            tbody.appendChild(row);
         });
-    </script>
+
+        hideLoading();
+
+    } catch (error) {
+        console.error('Admin load error:', error);
+        hideLoading();
+        showMessageModal('error', 'Error', 'Unable to load admin data.');
+    }
+});
+
+async function cancelTicket(ticketId) {
+    if (!confirm('Cancel this ticket?')) return;
+
+    showLoading('Cancelling ticket...');
+    try {
+        const response = await fetch(`/api/admin/cancel/${ticketId}`, {
+            method: 'PUT'
+        });
+        if (response.ok) {
+            showMessageModal('success', 'Cancelled', 'Ticket was cancelled successfully.');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            const msg = await response.text();
+            showMessageModal('error', 'Failed', msg || 'Failed to cancel.');
+        }
+    } catch (error) {
+        showMessageModal('error', 'Error', 'Something went wrong.');
+    } finally {
+        hideLoading();
+    }
+}
+</script>
+
 </body>
 </html>

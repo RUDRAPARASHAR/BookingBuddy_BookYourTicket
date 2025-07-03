@@ -11,13 +11,13 @@ import com.ticketsystem.repository.*;
 import com.ticketsystem.security.UserDetailsImpl;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -185,7 +185,248 @@ public class TicketService {
 
         return dto;
     }
+
+    // ----------------------------------------
+    // ✅ ADMIN FUNCTIONS
+    // ----------------------------------------
+
+    public List<Ticket> getAllTickets() {
+        return ticketRepository.findAllByOrderByBookingDateDesc();
+    }
+
+    public long countByStatus(String status) {
+        return ticketRepository.countByPaymentStatus(status);
+    }
+
+    public ResponseEntity<?> cancelPendingTicket(Long ticketId) {
+        Optional<Ticket> optionalTicket = ticketRepository.findById(ticketId);
+        if (optionalTicket.isPresent()) {
+            Ticket ticket = optionalTicket.get();
+            if ("PENDING".equalsIgnoreCase(ticket.getPaymentStatus())) {
+                ticket.setPaymentStatus("CANCELLED");
+                ticketRepository.save(ticket);
+                return ResponseEntity.ok("Ticket cancelled successfully.");
+            } else {
+                return ResponseEntity.badRequest().body("Only PENDING tickets can be cancelled.");
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+ // Admin: Count helpers
+    public long getTotalTicketsCount() {
+        return ticketRepository.count();
+    }
+
+    public long getPaidTicketsCount() {
+        return ticketRepository.countByPaymentStatus("PAID");
+    }
+
+    public long getPendingTicketsCount() {
+        return ticketRepository.countByPaymentStatus("PENDING");
+    }
+
+    public long getCancelledTicketsCount() {
+        return ticketRepository.countByPaymentStatus("CANCELLED");
+    }
+
 }
+
+
+
+
+
+
+
+//package com.ticketsystem.service;
+//
+//import com.razorpay.Order;
+//import com.razorpay.RazorpayClient;
+//import com.razorpay.RazorpayException;
+//import com.ticketsystem.exception.BadRequestException;
+//import com.ticketsystem.exception.ResourceNotFoundException;
+//import com.ticketsystem.model.*;
+//import com.ticketsystem.payload.TicketDetailsDto;
+//import com.ticketsystem.repository.*;
+//import com.ticketsystem.security.UserDetailsImpl;
+//import org.json.JSONObject;
+//import org.springframework.beans.factory.annotation.*;
+//import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.stereotype.Service;
+//
+//import java.time.LocalDateTime;
+//import java.util.List;
+//import java.util.Optional;
+//import java.util.stream.Collectors;
+//
+//@Service
+//public class TicketService {
+//
+//    @Autowired private TicketRepository ticketRepository;
+//    @Autowired private BusRepository busRepository;
+//    @Autowired private TrainRepository trainRepository;
+//    @Autowired private FlightRepository flightRepository;
+//    @Autowired private MovieRepository movieRepository;
+//    @Autowired private EventRepository eventRepository;
+//    @Autowired private UserRepository userRepository;
+//
+//    @Value("${razorpay.key.id}")
+//    private String razorpayKeyId;
+//
+//    @Value("${razorpay.key.secret}")
+//    private String razorpayKeySecret;
+//
+//    public String getCurrentUserId() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication != null && authentication.isAuthenticated() &&
+//            authentication.getPrincipal() instanceof UserDetailsImpl) {
+//            return ((UserDetailsImpl) authentication.getPrincipal()).getId().toString();
+//        }
+//        throw new IllegalStateException("User not authenticated.");
+//    }
+//
+//    public Ticket bookTicket(Ticket ticket) {
+//        ticket.setUserId(getCurrentUserId());
+//
+//        switch (ticket.getServiceType().toLowerCase()) {
+//            case "bus":
+//                Bus bus = busRepository.findById(Long.parseLong(ticket.getServiceId()))
+//                    .orElseThrow(() -> new ResourceNotFoundException("Bus not found"));
+//                if (bus.getAvailableSeats() < ticket.getQuantity()) {
+//                    throw new BadRequestException("Not enough seats available");
+//                }
+//                bus.setAvailableSeats(bus.getAvailableSeats() - ticket.getQuantity());
+//                busRepository.save(bus);
+//                break;
+//            case "train":
+//                Train train = trainRepository.findById(Long.parseLong(ticket.getServiceId()))
+//                    .orElseThrow(() -> new ResourceNotFoundException("Train not found"));
+//                if (train.getAvailableSeats() < ticket.getQuantity()) {
+//                    throw new BadRequestException("Not enough seats available");
+//                }
+//                train.setAvailableSeats(train.getAvailableSeats() - ticket.getQuantity());
+//                trainRepository.save(train);
+//                break;
+//            case "flight":
+//                Flight flight = flightRepository.findById(Long.parseLong(ticket.getServiceId()))
+//                    .orElseThrow(() -> new ResourceNotFoundException("Flight not found"));
+//                if (flight.getAvailableSeats() < ticket.getQuantity()) {
+//                    throw new BadRequestException("Not enough seats available");
+//                }
+//                flight.setAvailableSeats(flight.getAvailableSeats() - ticket.getQuantity());
+//                flightRepository.save(flight);
+//                break;
+//            case "movie":
+//                Movie movie = movieRepository.findById(Long.parseLong(ticket.getServiceId()))
+//                    .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
+//                if (movie.getAvailableSeats() < ticket.getQuantity()) {
+//                    throw new BadRequestException("Not enough seats available");
+//                }
+//                movie.setAvailableSeats(movie.getAvailableSeats() - ticket.getQuantity());
+//                movieRepository.save(movie);
+//                break;
+//            case "event":
+//                Event event = eventRepository.findById(Long.parseLong(ticket.getServiceId()))
+//                    .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+//                if (event.getCapacity() < ticket.getQuantity()) {
+//                    throw new BadRequestException("Not enough seats available");
+//                }
+//                event.setCapacity(event.getCapacity() - ticket.getQuantity());
+//                eventRepository.save(event);
+//                break;
+//            default:
+//                throw new BadRequestException("Invalid service type");
+//        }
+//
+//        ticket.setBookingDate(LocalDateTime.now());
+//        ticket.setPaymentStatus("PENDING");
+//        return ticketRepository.save(ticket);
+//    }
+//
+//    public String createPaymentOrder(Ticket ticket) throws RazorpayException {
+//        RazorpayClient razorpay = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+//        JSONObject orderRequest = new JSONObject();
+//        orderRequest.put("amount", (int)(ticket.getTotalPrice() * 100));
+//        orderRequest.put("currency", "INR");
+//        orderRequest.put("receipt", "order_rcptid_" + ticket.getId());
+//        Order order = razorpay.orders.create(orderRequest);
+//        return order.get("id");
+//    }
+//
+//    public void updateTicketPaymentStatus(Long ticketId, String paymentId, String status) {
+//        Ticket ticket = ticketRepository.findById(ticketId)
+//            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+//        ticket.setPaymentStatus(status);
+//        ticket.setPaymentId(paymentId);
+//        ticketRepository.save(ticket);
+//    }
+//
+//    public List<Ticket> getTicketsByUserId(String userId) {
+//        return ticketRepository.findByUserId(userId);
+//    }
+//
+//    public List<TicketDetailsDto> getTicketDTOsByUserId(String userId) {
+//        if (!getCurrentUserId().equals(userId)) {
+//            throw new SecurityException("Access denied");
+//        }
+//        return ticketRepository.findByUserId(userId).stream()
+//            .map(this::convertToDto)
+//            .collect(Collectors.toList());
+//    }
+//
+//    private TicketDetailsDto convertToDto(Ticket ticket) {
+//        TicketDetailsDto dto = new TicketDetailsDto();
+//        dto.setId(ticket.getId());
+//        dto.setServiceType(ticket.getServiceType());
+//        dto.setServiceId(ticket.getServiceId());
+//        dto.setQuantity(ticket.getQuantity());
+//        dto.setTotalPrice(ticket.getTotalPrice());
+//        dto.setPaymentStatus(ticket.getPaymentStatus());
+//        dto.setBookingDate(ticket.getBookingDate());
+//
+//        switch (ticket.getServiceType().toLowerCase()) {
+//            case "bus":
+//                busRepository.findById(Long.parseLong(ticket.getServiceId())).ifPresent(bus -> {
+//                    dto.setServiceName(bus.getOperator() + " Bus");
+//                    dto.setServiceRoute(bus.getDeparture() + " to " + bus.getDestination());
+//                    dto.setServiceTime(bus.getDepartureTime());
+//                });
+//                break;
+//            case "train":
+//                trainRepository.findById(Long.parseLong(ticket.getServiceId())).ifPresent(train -> {
+//                    dto.setServiceName("Train " + train.getTrainNumber());
+//                    dto.setServiceRoute(train.getDeparture() + " to " + train.getDestination());
+//                    dto.setServiceTime(train.getDepartureTime());
+//                });
+//                break;
+//            case "flight":
+//                flightRepository.findById(Long.parseLong(ticket.getServiceId())).ifPresent(flight -> {
+//                    dto.setServiceName(flight.getAirline() + " Flight " + flight.getFlightNumber());
+//                    dto.setServiceRoute(flight.getDeparture() + " to " + flight.getDestination());
+//                    dto.setServiceTime(flight.getDepartureTime());
+//                });
+//                break;
+//            case "movie":
+//                movieRepository.findById(Long.parseLong(ticket.getServiceId())).ifPresent(movie -> {
+//                    dto.setServiceName(movie.getTitle());
+//                    dto.setServiceRoute("Theater: " + movie.getTheater());
+//                    dto.setServiceTime("Showtime: " + movie.getShowTime());
+//                });
+//                break;
+//            case "event":
+//                eventRepository.findById(Long.parseLong(ticket.getServiceId())).ifPresent(event -> {
+//                    dto.setServiceName(event.getName());
+//                    dto.setServiceRoute("Location: " + event.getLocation());
+//                    dto.setServiceTime("Date/Time: " + event.getStartTime());
+//                });
+//                break;
+//        }
+//
+//        return dto;
+//    }
+//    
+//}
 
 
 
