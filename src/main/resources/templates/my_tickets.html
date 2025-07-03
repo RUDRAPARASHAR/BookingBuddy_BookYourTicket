@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="~{fragments/common :: pageTitle}">My Tickets - BookingBuddy</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header th:replace="~{fragments/common :: header}"></header>
+
+    <div class="container">
+        <h2>My Booked Tickets</h2>
+        <div class="ticket-list" id="ticketList">
+            <p class="no-tickets" id="loadingTicketsMessage">Loading your tickets...</p>
+            <p class="no-tickets" id="noTicketsFoundMessage" style="display: none;">
+                <i class="fas fa-ticket-alt" style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary-blue);"></i><br>
+                You have no booked tickets yet. <br>
+                <a th:href="@{/booking}" style="color: var(--primary-blue); text-decoration: none; font-weight: 500;">Start booking your next adventure!</a>
+            </p>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: modals}"></div>
+
+    <script th:src="@{/js/app.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const currentUserId = /*[[${currentUserId}]]*/ null; // Get user ID from Thymeleaf model
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (currentUserId) {
+                fetchMyTickets(currentUserId);
+            } else {
+                showMessageModal('error', 'Authentication Required', 'You are not logged in. Please log in to view your tickets.');
+                document.getElementById('loadingTicketsMessage').style.display = 'none';
+                document.getElementById('noTicketsFoundMessage').style.display = 'block';
+                document.getElementById('noTicketsFoundMessage').innerHTML = `
+                    <i class="fas fa-user-times" style="font-size: 3rem; margin-bottom: 1rem; color: var(--error-red);"></i><br>
+                    You are not logged in. <br>
+                    <a th:href="@{/login}" style="color: var(--primary-blue); text-decoration: none; font-weight: 500;">Login to view your tickets</a>
+                `;
+            }
+        });
+
+        async function fetchMyTickets(userId) {
+            const ticketList = document.getElementById('ticketList');
+            const loadingMessage = document.getElementById('loadingTicketsMessage');
+            const noTicketsMessage = document.getElementById('noTicketsFoundMessage');
+
+            loadingMessage.style.display = 'block';
+            noTicketsMessage.style.display = 'none';
+            ticketList.innerHTML = ''; // Clear previous content
+
+            showLoading('Loading your tickets...');
+
+            try {
+                const response = await fetch(`/api/tickets/my`);
+                hideLoading();
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        showMessageModal('error', 'Access Denied', 'You are not authorized to view these tickets or your session has expired. Please log in.');
+                        setTimeout(() => window.location.href = '/login', 2000);
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const tickets = await response.json();
+                displayTickets(tickets);
+            } catch (error) {
+                hideLoading();
+                console.error('Error fetching tickets:', error);
+                loadingMessage.style.display = 'none';
+                noTicketsMessage.style.display = 'block';
+                noTicketsMessage.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; color: var(--warning-yellow);"></i><br>
+                    Error loading tickets. Please try again.
+                `;
+                showMessageModal('error', 'Network Error', 'Could not connect to the server. Please check your internet connection.');
+            }
+        }
+
+        function displayTickets(tickets) {
+            const ticketList = document.getElementById('ticketList');
+            const loadingMessage = document.getElementById('loadingTicketsMessage');
+            const noTicketsMessage = document.getElementById('noTicketsFoundMessage');
+
+            loadingMessage.style.display = 'none';
+            ticketList.innerHTML = ''; // Clear loading message
+
+            if (tickets.length === 0) {
+                noTicketsMessage.style.display = 'block';
+            } else {
+                noTicketsMessage.style.display = 'none';
+                tickets.forEach(ticket => {
+                    const card = document.createElement('div');
+                    card.className = 'ticket-card';
+
+                    let serviceIconClass = '';
+                    switch(ticket.serviceType.toLowerCase()) {
+                        case 'bus': serviceIconClass = 'fa-bus'; break;
+                        case 'flight': serviceIconClass = 'fa-plane'; break;
+                        case 'train': serviceIconClass = 'fa-train'; break;
+                        case 'movie': serviceIconClass = 'fa-film'; break;
+                        case 'event': serviceIconClass = 'fa-calendar-alt'; break;
+                        default: serviceIconClass = 'fa-ticket-alt'; // Generic icon
+                    }
+
+                    card.innerHTML = `
+                        <div class="details">
+                            <h3><i class="fas ${serviceIconClass} icon"></i> ${ticket.serviceName || (ticket.serviceType.charAt(0).toUpperCase() + ticket.serviceType.slice(1) + ' Ticket')}</h3>
+                            <p>${ticket.serviceRoute ? `Route: <strong>${ticket.serviceRoute}</strong>` : ''}</p>
+                            <p>${ticket.serviceTime ? `Time: <strong>${ticket.serviceTime}</strong>` : ''}</p>
+                            <p>Quantity: <strong>${ticket.quantity}</strong></p>
+                            <p>Booking Date: <strong>${new Date(ticket.bookingDate).toLocaleString()}</strong></p>
+                        </div>
+                        <div class="status-price">
+                            <span class="status ${ticket.paymentStatus}">${ticket.paymentStatus}</span>
+                            <p class="total-price">₹${ticket.totalPrice.toFixed(2)}</p>
+                        </div>
+                    `;
+                    ticketList.appendChild(card);
+                });
+            }
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>

@@ -1,0 +1,1049 @@
+/* Global Styles - Enhanced Palette & Typography */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+    background-color: white;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+}
+.loading-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.loading-overlay .spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #0072ff;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+:root {
+    --primary-blue: #3498db; /* A more vibrant blue */
+    --light-blue: #5dade2;
+    --dark-blue: #2874a6;
+    --accent-green: #2ecc71; /* Fresh green for success */
+    --accent-red: #e74c3c;   /* Strong red for errors */
+    --accent-orange: #f39c12; /* Warm orange for warnings/pending */
+    --text-dark: #2c3e50;    /* Darker, richer text */
+    --text-medium: #7f8c8d;  /* Softer grey for secondary text */
+    --bg-light: #ecf0f1;     /* Very light grey background */
+    --bg-white: #ffffff;
+    --border-light: #dfe6e9; /* Lighter, subtle border */
+    --border-medium: #bdc3c7; /* Medium grey border */
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --shadow-strong: rgba(0, 0, 0, 0.25);
+    --gradient-header: linear-gradient(90deg, #3498db, #2980b9); /* Blue gradient */
+    --gradient-button: linear-gradient(45deg, #3498db, #2980b9); /* Button gradient */
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Header Styles - Gradient & User Info */
+header {
+    background: var(--gradient-header);
+    color: white;
+    padding: 1rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px var(--shadow-medium);
+    flex-shrink: 0;
+    position: sticky; /* Sticky header */
+    top: 0;
+    z-index: 999; /* Ensure header is on top */
+}
+header h1 {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-size: 1.8rem;
+}
+header .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+header .welcome-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+header button, header a.btn {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.95rem;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 25px; /* Pill shape */
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+header button:hover, header a.btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+    transform: translateY(-2px);
+}
+
+/* Main Container - More Defined */
+.container {
+    max-width: 1200px;
+    margin: 2.5rem auto;
+    padding: 3rem;
+    background: var(--bg-white);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px var(--shadow-medium);
+    flex-grow: 1;
+    position: relative; /* For potential inner positioning */
+}
+h2 {
+    color: var(--primary-blue);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 10px;
+}
+h2::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--primary-blue);
+    border-radius: 2px;
+}
+
+/* Hero Section Styles - Enhanced Overlay & Text */
+.hero {
+    position: relative;
+    height: 80vh; /* Taller hero */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+.hero-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 400%;
+    height: 100%;
+    display: flex;
+    animation: slide 18s infinite;
+}
+.hero-slider img {
+    width: 25%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7); /* Slightly darker images */
+}
+@keyframes slide {
+    0% { transform: translateX(0%); }
+    25% { transform: translateX(0%); }
+    30% { transform: translateX(-25%); }
+    50% { transform: translateX(-25%); }
+    55% { transform: translateX(-50%); }
+    75% { transform: translateX(-50%); }
+    80% { transform: translateX(-75%); }
+    100% { transform: translateX(-75%); }
+}
+.hero-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.55); /* Darker, more opaque overlay */
+    padding: 3rem 4rem;
+    border-radius: 15px;
+    max-width: 900px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInSlideUp 1.2s ease-out forwards; /* Slower, smoother animation */
+    animation-delay: 0.7s;
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
+}
+.hero-content h2 {
+    font-size: 3.5rem; /* Larger heading */
+    margin-bottom: 1.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.4); /* Text shadow for pop */
+}
+.hero-content h2::after {
+    background: white; /* White underline for hero heading */
+}
+.hero-content p {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9);
+}
+.hero-content .btn {
+    background: var(--gradient-button); /* Gradient button */
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px var(--shadow-strong);
+    transition: all 0.3s ease;
+}
+.hero-content .btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px var(--shadow-strong);
+    background: var(--dark-blue); /* Solid color on hover */
+}
+
+
+/* Navigation Buttons - More prominent */
+.nav {
+    text-align: center;
+    margin: 3rem 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+.nav button, .nav a.btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.15rem;
+    border: none;
+    border-radius: 30px;
+    background: var(--gradient-button);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px var(--shadow-medium);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex; /* Use flex for icon alignment */
+    align-items: center;
+    gap: 0.5rem;
+}
+.nav button:hover, .nav a.btn:hover {
+    background: var(--dark-blue);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--shadow-strong);
+}
+.nav button:active, .nav a.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+
+/* Cards Section - Enhanced Cards */
+.cards-section {
+    padding: 4rem 2rem;
+    background: var(--bg-white);
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px var(--shadow-medium);
+    margin: 2.5rem auto;
+    max-width: 1200px;
+}
+.cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 3rem; /* Increased gap */
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.card {
+    width: 300px; /* Slightly wider cards */
+    background: var(--bg-white);
+    box-shadow: 0 10px 25px var(--shadow-light); /* Softer initial shadow */
+    border-radius: 20px; /* More rounded corners */
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-light); /* Subtle border */
+}
+.card:hover {
+    transform: translateY(-15px) scale(1.02); /* More pronounced lift */
+    box-shadow: 0 18px 40px var(--shadow-medium); /* Stronger shadow on hover */
+}
+.card img {
+    width: 100%;
+    height: 200px; /* Taller images */
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-light);
+}
+.card .content {
+    padding: 2rem; /* More padding */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.card .content h3 {
+    font-size: 1.6rem; /* Larger heading */
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--primary-blue);
+    font-weight: 700;
+}
+.card .content p {
+    font-size: 1rem;
+    color: var(--text-medium);
+    margin-bottom: 2rem;
+}
+.card .content button {
+    display: block;
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--gradient-button);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+.card .content button:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+}
+.card .icon {
+    font-size: 3.5rem; /* Larger icons */
+    color: var(--primary-blue);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+.card:hover .icon {
+    transform: scale(1.1); /* Icon grows on hover */
+}
+
+/* Footer Styles - Darker & More Prominent */
+footer {
+    background: var(--text-dark); /* Darker footer */
+    color: var(--bg-light);
+    padding: 2rem; /* More padding */
+    text-align: center;
+    font-size: 0.95rem;
+    margin-top: auto;
+    flex-shrink: 0;
+    box-shadow: 0 -4px 10px var(--shadow-medium); /* Shadow on top */
+}
+
+/* Login/Signup Page Styles - Refined Forms */
+.login-container, .signup-container {
+    background: var(--bg-white);
+    padding: 50px; /* More padding */
+    border-radius: 15px;
+    box-shadow: 0 12px 30px var(--shadow-medium); /* Stronger shadow */
+    width: 100%;
+    max-width: 450px; /* Slightly wider */
+    text-align: center;
+    margin: 4rem auto; /* More vertical margin */
+    border: 1px solid var(--border-light);
+}
+.login-container h2, .signup-container h2 {
+    color: var(--primary-blue);
+    margin-bottom: 35px;
+    font-weight: 700;
+    font-size: 2.2rem;
+}
+.login-form .form-group, .signup-form .form-group {
+    margin-bottom: 25px; /* More space between fields */
+    text-align: left;
+}
+.login-form label, .signup-form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600; /* Bolder labels */
+    color: var(--text-dark);
+    font-size: 1.05rem;
+}
+.login-form input[type="text"],
+.login-form input[type="password"],
+.login-form input[type="email"],
+.signup-form input[type="text"],
+.signup-form input[type="email"],
+.signup-form input[type="password"] {
+    width: calc(100% - 24px); /* Adjust for padding */
+    padding: 14px 12px; /* More padding */
+    border: 1px solid var(--border-medium);
+    border-radius: 8px; /* More rounded inputs */
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.08); /* Inner shadow */
+}
+.login-form input[type="text"]:focus,
+.login-form input[type="password"]:focus,
+.login-form input[type="email"]:focus,
+.signup-form input[type="text"]:focus,
+.signup-form input[type="email"]:focus,
+.signup-form input[type="password"]:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3); /* Blue glow on focus */
+    outline: none;
+}
+.login-form button, .signup-form button {
+    width: 100%;
+    padding: 15px; /* More padding */
+    background: var(--gradient-button);
+    color: white;
+    border: none;
+    border-radius: 30px; /* Pill shape */
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    box-shadow: 0 5px 15px var(--shadow-medium);
+}
+.login-form button:hover, .signup-form button:hover {
+    background: var(--dark-blue);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--shadow-strong);
+}
+.login-form button:active, .signup-form button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+.message {
+    margin-top: 20px;
+    font-size: 1rem;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    animation: fadeIn 0.5s ease-out;
+}
+.success-message {
+    color: var(--accent-green);
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid var(--accent-green);
+}
+.error-message {
+    color: var(--accent-red);
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid var(--accent-red);
+}
+.signup-link, .login-link {
+    margin-top: 30px;
+    font-size: 1rem;
+    color: var(--text-medium);
+}
+.signup-link a, .login-link a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+.signup-link a:hover, .login-link a:hover {
+    color: var(--dark-blue);
+    text-decoration: underline;
+}
+
+/* Service Selection (booking.html) - More prominent buttons */
+.service-selection {
+    text-align: center;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+.service-selection button {
+    padding: 1rem 2rem;
+    border: 2px solid var(--primary-blue);
+    border-radius: 30px;
+    background: var(--bg-white);
+    color: var(--primary-blue);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.05rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.service-selection button.active,
+.service-selection button:hover {
+    background: var(--gradient-button);
+    color: white;
+    box-shadow: 0 5px 15px var(--shadow-medium);
+    transform: translateY(-2px);
+}
+.service-selection button.active {
+    border-color: transparent; /* No border when active */
+}
+
+/* Search Form (booking.html) - Cleaner layout */
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem; /* Increased gap */
+    justify-content: center;
+    margin-bottom: 3rem;
+    padding: 2rem; /* More padding */
+    background: #f8f9fa; /* Lighter background */
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 12px var(--shadow-light);
+}
+.search-form input,
+.search-form select {
+    padding: 1rem; /* More padding */
+    border: 1px solid var(--border-medium);
+    border-radius: 8px;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 200px; /* Wider inputs */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+.search-form input:focus,
+.search-form select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+.search-form button {
+    padding: 1rem 2.5rem;
+    background: var(--gradient-button);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+.search-form button:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px var(--shadow-strong);
+}
+
+/* Results Section (booking.html) - Enhanced Cards */
+.results-section {
+    margin-top: 3rem;
+}
+.result-card {
+    background: #fefefe;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 2rem; /* More padding */
+    margin-bottom: 1.5rem; /* More space between cards */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 15px var(--shadow-light);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px var(--shadow-medium);
+}
+.result-card .details {
+    flex-grow: 1;
+    flex-basis: 65%; /* More space for details */
+}
+.result-card h3 {
+    margin: 0 0 0.8rem 0;
+    color: var(--primary-blue);
+    font-size: 1.5rem; /* Larger heading */
+    font-weight: 700;
+    text-align: left; /* Align left */
+}
+.result-card p {
+    margin: 0.4rem 0;
+    color: var(--text-medium);
+    font-size: 1rem;
+    text-align: left; /* Align left */
+}
+.result-card .price {
+    font-size: 1.8rem; /* Larger price */
+    font-weight: 800;
+    color: var(--accent-green);
+    margin-left: 1.5rem;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+.result-card .actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* More gap */
+    flex-basis: 30%; /* Less space for actions */
+    justify-content: flex-end;
+}
+.result-card .actions input[type="number"] {
+    width: 70px; /* Wider number input */
+    padding: 0.7rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1rem;
+}
+.result-card .actions button {
+    padding: 0.8rem 1.5rem;
+    background: var(--gradient-button);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+.result-card .actions button:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+}
+.no-results {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 3rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: #fdfdfd;
+    border-radius: 10px;
+    border: 1px dashed var(--border-medium);
+    margin-top: 2rem;
+}
+
+/* Ticket List (my_tickets.html) - Enhanced Cards */
+.ticket-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.ticket-card {
+    background: #fefefe;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px var(--shadow-light);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.ticket-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--shadow-medium);
+}
+.ticket-card .details {
+    flex: 1 1 60%;
+}
+.ticket-card h3 {
+    margin: 0 0 0.8rem 0;
+    color: var(--primary-blue);
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ticket-card p {
+    margin: 0.4rem 0;
+    color: var(--text-medium);
+    font-size: 1rem;
+}
+.ticket-card .icon {
+    font-size: 2.2rem; /* Slightly larger icons */
+    color: var(--primary-blue);
+    margin-right: 10px;
+}
+.ticket-card .status-price {
+    flex: 1 1 35%;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+.ticket-card .status {
+    font-weight: 700;
+    padding: 0.4rem 1rem;
+    border-radius: 20px; /* Pill shape for status */
+    display: inline-block;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status.PENDING { background-color: var(--accent-orange); color: white; }
+.status.PAID { background-color: var(--accent-green); color: white; }
+.status.CANCELLED { background-color: var(--accent-red); color: white; }
+.ticket-card .total-price {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent-green);
+}
+.no-tickets {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 3rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: #fdfdfd;
+    border-radius: 10px;
+    border: 1px dashed var(--border-medium);
+    margin-top: 2rem;
+}
+.no-tickets i {
+    margin-bottom: 1.5rem;
+}
+.no-tickets a {
+    margin-top: 1rem;
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+.no-tickets a:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+}
+
+/* Modals (General) - More prominent */
+.modal, .payment-modal, .message-modal, .loading-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7); /* Darker overlay */
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+}
+.modal-content, .payment-modal-content, .message-modal-content {
+    background-color: var(--bg-white);
+    padding: 40px; /* More padding */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px var(--shadow-strong); /* Stronger shadow */
+    width: 90%;
+    max-width: 500px; /* Slightly wider */
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.4s ease-out; /* Slower slide in */
+    border: 1px solid var(--border-light);
+}
+.close-button {
+    color: var(--text-medium);
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 35px; /* Larger close button */
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.close-button:hover, .close-button:focus {
+    color: var(--text-dark);
+}
+.modal-content h3, .payment-modal-content h3, .message-modal-content h3 {
+    color: var(--primary-blue);
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2.2rem; /* Larger heading */
+    font-weight: 700;
+}
+.modal-content p, .payment-modal-content p, .message-modal-content p {
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+    color: var(--text-dark);
+}
+.modal-content button, .payment-modal-content button, .message-modal-content button {
+    padding: 12px 25px;
+    background: var(--gradient-button);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+.modal-content button:hover, .payment-modal-content button:hover, .message-modal-content button:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px var(--shadow-strong);
+}
+
+/* Loading Overlay Specifics */
+.loading-overlay {
+    flex-direction: column;
+    gap: 1.5rem;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+.loading-overlay img {
+    width: 100px; /* Larger loading gif */
+    height: 100px;
+}
+
+/* Message Modal Icons */
+.message-modal-content .icon {
+    font-size: 4rem; /* Larger icons */
+    margin-bottom: 1.5rem;
+}
+.message-modal-content .icon.success { color: var(--accent-green); }
+.message-modal-content .icon.error { color: var(--accent-red); }
+.message-modal-content .icon.info { color: var(--primary-blue); }
+
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideIn {
+    from { transform: translateY(-80px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeInSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    header {
+        padding: 1rem 2rem;
+    }
+    .hero-content {
+        padding: 2.5rem 3rem;
+    }
+    .hero-content h2 {
+        font-size: 3rem;
+    }
+    .nav {
+        gap: 1rem;
+    }
+    .nav button, .nav a.btn {
+        padding: 0.8rem 2rem;
+        font-size: 1.05rem;
+    }
+    .cards {
+        gap: 2rem;
+    }
+    .card {
+        width: 280px;
+    }
+    .container {
+        padding: 2rem;
+        margin: 2rem auto;
+    }
+    h2 {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0.8rem;
+    }
+    header .header-actions {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    header button, header a.btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    .hero {
+        height: 60vh;
+    }
+    .hero-content {
+        padding: 2rem;
+    }
+    .hero-content h2 {
+        font-size: 2.5rem;
+    }
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+    .nav {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    .nav button, .nav a.btn {
+        width: 80%;
+        max-width: 300px;
+        padding: 0.9rem 1.5rem;
+        font-size: 1rem;
+    }
+    .cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .card {
+        width: 90%;
+        max-width: 350px;
+    }
+    .search-form {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    .search-form input, .search-form select {
+        min-width: unset;
+        width: 100%;
+    }
+    .result-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+    }
+    .result-card .details, .result-card .actions {
+        flex-basis: 100%;
+        width: 100%;
+        text-align: left;
+    }
+    .result-card .actions {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 1.5rem;
+        gap: 1rem;
+    }
+    .result-card .price {
+        margin-left: 0;
+        margin-bottom: 0.5rem;
+    }
+    .result-card .actions input[type="number"] {
+        width: 100%;
+        max-width: 100px;
+    }
+    .result-card .actions button {
+        width: 100%;
+    }
+    .ticket-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+    }
+    .ticket-card .details, .ticket-card .status-price {
+        flex-basis: 100%;
+        width: 100%;
+        text-align: left;
+    }
+    .ticket-card .status-price {
+        align-items: flex-start;
+        margin-top: 1.5rem;
+    }
+    .login-container, .signup-container {
+        padding: 30px;
+        margin: 2rem auto;
+    }
+    .modal-content, .payment-modal-content, .message-modal-content {
+        padding: 30px;
+    }
+    .modal-content h3, .payment-modal-content h3, .message-modal-content h3 {
+        font-size: 1.8rem;
+    }
+    .message-modal-content .icon {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+    .hero-content h2 {
+        font-size: 2rem;
+    }
+    .hero-content p {
+        font-size: 1rem;
+    }
+    .hero-content .btn {
+        padding: 0.8rem 1.8rem;
+        font-size: 1rem;
+    }
+    .container {
+        padding: 1.5rem;
+    }
+    h2 {
+        font-size: 2rem;
+    }
+    .card .content h3 {
+        font-size: 1.3rem;
+    }
+    .card .content p {
+        font-size: 0.9rem;
+    }
+    .login-container, .signup-container {
+        padding: 25px;
+    }
+    .login-container h2, .signup-container h2 {
+        font-size: 1.8rem;
+    }
+    .login-form input, .signup-form input {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+    .login-form button, .signup-form button {
+        padding: 12px;
+        font-size: 1rem;
+    }
+    .result-card .price, .ticket-card .total-price {
+        font-size: 1.5rem;
+    }
+}

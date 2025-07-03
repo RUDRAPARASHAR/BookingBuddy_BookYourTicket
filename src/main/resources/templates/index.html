@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="~{fragments/common :: pageTitle}">BookingBuddy - Book Easily</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header th:replace="~{fragments/common :: header}"></header>
+    
+    <div class="hero">
+        <div class="hero-slider">
+            <img th:src="@{/images/hero-bg.jpg}" alt="hero 1">
+            <img th:src="@{/images/flight-deal.jpg}" alt="hero 2">
+            <img th:src="@{/images/train-deal.jpg}" alt="hero 3">
+            <img th:src="@{/images/event.jpg}" alt="hero 4">
+        </div>
+        <div class="hero-content">
+            <h2>Your Journey Starts Here</h2>
+            <p>Book flights, trains, buses, movies, and events with ease. Seamless booking, endless possibilities.</p>
+            <a th:href="@{/booking}" class="btn">Explore Services</a>
+        </div>
+    </div>
+
+    <div class="nav">
+        <a th:href="@{/booking}" class="btn">Book Now</a>
+        <a th:href="@{/my_tickets}" class="btn">My Tickets</a>
+        <a th:href="@{/admin}" class="btn" sec:authorize="hasRole('ADMIN')">Admin Panel</a>
+    </div>
+
+   <div class="cards-section">
+    <h2>Popular Services</h2>
+    <div class="cards">
+        <!-- Flight -->
+        <div class="card" onclick="location.href='/booking?service=flights'">
+            <img th:src="@{/images/flight-deal.jpg}" alt="Flights">
+            <div class="content">
+                <i class="fas fa-plane icon"></i>
+                <h3>Flight Deals</h3>
+                <p>Grab amazing discounts on flights to your dream destinations!</p>
+                <button>View Flights</button>
+            </div>
+        </div>
+
+        <!-- Train -->
+        <div class="card" onclick="location.href='/booking?service=trains'">
+            <img th:src="@{/images/train-deal.jpg}" alt="Trains">
+            <div class="content">
+                <i class="fas fa-train icon"></i>
+                <h3>Train Offers</h3>
+                <p>Comfortable and affordable train journeys to your favorite cities.</p>
+                <button>View Trains</button>
+            </div>
+        </div>
+
+        <!-- Bus -->
+        <div class="card" onclick="location.href='/booking?service=buses'">
+            <img th:src="@{/images/bus-deal.jpg}" alt="Buses">
+            <div class="content">
+                <i class="fas fa-bus icon"></i>
+                <h3>Bus Offers</h3>
+                <p>Convenient and economical bus travel for all your plans.</p>
+                <button>View Buses</button>
+            </div>
+        </div>
+
+        <!-- Movie -->
+        <div class="card" onclick="location.href='/booking?service=movies'">
+            <img th:src="@{/images/movie.jpg}" alt="Movies">
+            <div class="content">
+                <i class="fas fa-film icon"></i>
+                <h3>Movie Tickets</h3>
+                <p>Catch the latest blockbusters at top cinemas near you.</p>
+                <button>View Movies</button>
+            </div>
+        </div>
+
+        <!-- Event -->
+        <div class="card" onclick="location.href='/booking?service=events'">
+            <img th:src="@{/images/event.jpg}" alt="Events">
+            <div class="content">
+                <i class="fas fa-calendar-alt icon"></i>
+                <h3>Event Passes</h3>
+                <p>Discover and book tickets for concerts, shows, and more.</p>
+                <button>View Events</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: modals}"></div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

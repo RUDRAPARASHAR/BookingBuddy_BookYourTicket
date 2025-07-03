@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="~{fragments/common :: pageTitle}">Book Your Service - BookingBuddy</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<header th:replace="~{fragments/common :: header}"></header>
+
+<div class="container">
+    <h2 id="pageTitle">Book Your Service</h2>
+
+    <div class="service-selection">
+        <button id="btnFlights" onclick="selectService('flights')"><i class="fas fa-plane"></i> Flights</button>
+        <button id="btnTrains" onclick="selectService('trains')"><i class="fas fa-train"></i> Trains</button>
+        <button id="btnBuses" onclick="selectService('buses')"><i class="fas fa-bus"></i> Buses</button>
+        <button id="btnMovies" onclick="selectService('movies')"><i class="fas fa-film"></i> Movies</button>
+        <button id="btnEvents" onclick="selectService('events')"><i class="fas fa-calendar-alt"></i> Events</button>
+    </div>
+
+    <div class="search-form" id="searchForm"></div>
+    <div class="results-section" id="resultsSection">
+        <p class="no-results">Select a service and search to find available options.</p>
+    </div>
+</div>
+
+<!-- Modals & Overlay (Not duplicated) -->
+<div th:replace="~{fragments/common :: modals}"></div>
+<footer th:replace="~{fragments/common :: footer}"></footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let currentService = new URLSearchParams(window.location.search).get("service") || "flights";
+    let selectedBooking = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        selectService(currentService);
+
+        // Attach to Confirm & Pay after DOM is fully ready
+        setTimeout(() => {
+            const confirmBtn = document.getElementById('processPaymentButton');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', processPayment);
+                console.log("✅ Confirm & Pay button bound to processPayment()");
+            } else {
+                console.warn("⚠️ processPaymentButton not found on page.");
+            }
+        }, 300);
+    });    
+    async function processPayment() {
+        console.log("🧾 selectedBooking before booking:", selectedBooking);
+
+        if (!selectedBooking || !selectedBooking.serviceType || !selectedBooking.serviceId) {
+            showMessageModal('error', 'Booking Error', 'Please click "Book Now" before confirming payment.');
+            return;
+        }
+
+        try {
+            showLoading('Processing your booking...');
+
+            const bookResponse = await fetch('/api/tickets/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    serviceType: selectedBooking.serviceType,
+                    serviceId: selectedBooking.serviceId,
+                    quantity: selectedBooking.quantity,
+                    totalPrice: selectedBooking.totalPrice,
+                    paymentStatus: "PENDING"
+                })
+            });
+
+            if (!bookResponse.ok) {
+                const errorText = await bookResponse.text();
+                throw new Error(`Booking failed: ${errorText}`);
+            }
+
+            const bookedTicket = await bookResponse.json();
+
+            const orderResponse = await fetch('/api/tickets/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: bookedTicket.id,
+                    totalPrice: bookedTicket.totalPrice
+                })
+            });
+
+            if (!orderResponse.ok) {
+                const errorText = await orderResponse.text();
+                throw new Error(`Payment failed: ${errorText}`);
+            }
+
+            // ✅ Parse the JSON object instead of reading plain text
+            const orderData = await orderResponse.json();
+            const orderId = orderData.orderId; // ✅ Extract only the Razorpay order ID string
+
+            const options = {
+                key: "rzp_test_OGxjrlvYkCmv4I",
+                amount: bookedTicket.totalPrice * 100,
+                currency: "INR",
+                name: "BookingBuddy",
+                description: `Booking for ${selectedBooking.serviceType}`,
+                order_id: orderId,
+                handler: async function(response) {
+                    try {
+                        const updateRes = await fetch('/api/tickets/updatePaymentStatus', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ticketId: bookedTicket.id.toString(),
+                                paymentId: response.razorpay_payment_id
+                            })
+                        });
+
+                        if (!updateRes.ok) throw new Error('Failed to update payment status');
+
+                        showMessageModal('success', 'Payment Successful!', `Payment ID: ${response.razorpay_payment_id}. Your ticket is confirmed!`);
+                        fetchAndDisplayResults();
+                    } catch (err) {
+                        console.error('Error updating payment:', err);
+                        showMessageModal('error', 'Payment Error', 'Payment was successful but we could not verify it. Contact support.');
+                        fetchAndDisplayResults();
+                    }
+                },
+                prefill: {
+                    name: "Customer Name",
+                    email: "customer@example.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#0072ff"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function(response) {
+                hideLoading();
+                showMessageModal('error', 'Payment Failed', `Code: ${response.error.code}, Reason: ${response.error.description}`);
+                fetchAndDisplayResults();
+            });
+
+            rzp.open();
+            hideLoading();
+
+        } catch (error) {
+            hideLoading();
+            console.error('Booking/Payment Error:', error);
+            showMessageModal('error', 'Booking/Payment Failed', `An error occurred: ${error.message}`);
+            fetchAndDisplayResults();
+        }
+    }
+
+
+    function selectService(serviceType) {
+        currentService = serviceType;
+        document.getElementById('pageTitle').textContent = `Book ${serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}`;
+        document.querySelectorAll('.service-selection button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn${serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}`)?.classList.add('active');
+        loadSearchForm(serviceType);
+        fetchAndDisplayResults();
+    }
+
+    function loadSearchForm(serviceType) {
+        const searchForm = document.getElementById('searchForm');
+        let html = '';
+        if (['flights', 'trains', 'buses'].includes(serviceType)) {
+            html = `
+                <input type="text" id="departure" placeholder="Departure City">
+                <input type="text" id="destination" placeholder="Destination City">
+                <input type="datetime-local" id="departureTime">
+                <button onclick="fetchAndDisplayResults()">Search</button>
+            `;
+        } else if (serviceType === 'movies') {
+            html = `
+                <input type="text" id="movieTitle" placeholder="Movie Title">
+                <input type="text" id="theater" placeholder="Theater Name">
+                <input type="datetime-local" id="showTime">
+                <button onclick="fetchAndDisplayResults()">Search</button>
+            `;
+        } else if (serviceType === 'events') {
+            html = `
+                <input type="text" id="eventName" placeholder="Event Name">
+                <input type="text" id="location" placeholder="Location">
+                <input type="datetime-local" id="eventDateTime">
+                <button onclick="fetchAndDisplayResults()">Search</button>
+            `;
+        }
+        searchForm.innerHTML = html;
+    }
+
+    async function fetchAndDisplayResults() {
+        const resultsSection = document.getElementById('resultsSection');
+        resultsSection.innerHTML = '';
+        showLoading('Fetching available options...');
+        const params = new URLSearchParams();
+        let apiUrl = `/api/${currentService}/search?`;
+
+        if (['flights', 'trains', 'buses'].includes(currentService)) {
+            const departure = document.getElementById('departure')?.value;
+            const destination = document.getElementById('destination')?.value;
+            const time = document.getElementById('departureTime')?.value;
+            if (departure) params.append('departure', departure);
+            if (destination) params.append('destination', destination);
+            if (time) params.append('departureTime', time);
+        } else if (currentService === 'movies') {
+            const title = document.getElementById('movieTitle')?.value;
+            const theater = document.getElementById('theater')?.value;
+            const showTime = document.getElementById('showTime')?.value;
+            if (title) params.append('title', title);
+            if (theater) params.append('theater', theater);
+            if (showTime) params.append('showTime', showTime);
+        } else if (currentService === 'events') {
+            const name = document.getElementById('eventName')?.value;
+            const location = document.getElementById('location')?.value;
+            const dateTime = document.getElementById('eventDateTime')?.value;
+            if (name) params.append('name', name);
+            if (location) params.append('location', location);
+            if (dateTime) params.append('dateTime', dateTime);
+        }
+
+        apiUrl += params.toString();
+
+        try {
+            const response = await fetch(apiUrl);
+            hideLoading();
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            const data = await response.json();
+            displayResults(data);
+        } catch (error) {
+            hideLoading();
+            console.error(error);
+            resultsSection.innerHTML = '<p class="no-results">Failed to load results.</p>';
+            showMessageModal('error', 'Error', error.message);
+        }
+    }
+
+    function displayResults(data) {
+        const resultsSection = document.getElementById('resultsSection');
+        resultsSection.innerHTML = '';
+        if (!data.length) {
+            resultsSection.innerHTML = '<p class="no-results">No results found.</p>';
+            return;
+        }
+
+        data.forEach(item => {
+            const id = item.id;
+            const seats = item.availableSeats || 10;
+            let price = item.price || item.ticketPrice || 0;
+            let details = `<h3>${item.name || item.title || item.flightNumber || item.trainNumber || item.operator}</h3>`;
+
+            if (item.departure && item.destination) {
+                details += `<p>From: ${item.departure} To: ${item.destination}</p>`;
+            }
+            if (item.departureTime || item.showTime || item.dateTime) {
+                details += `<p>Date/Time: ${item.departureTime || item.showTime || item.dateTime}</p>`;
+            }
+            details += `<p>Available Seats: ${seats}</p>`;
+
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.innerHTML = `
+                <div class="details">${details}</div>
+                <div class="actions">
+                    <span class="price">₹${price.toFixed(2)}</span>
+                    <input type="number" value="1" min="1" max="${seats}" id="quantity-${id}">
+                    <button onclick="openPaymentModal('${currentService}', '${id}', ${price}, ${seats})">Book Now</button>
+                </div>`;
+            resultsSection.appendChild(card);
+        });
+    }
+
+    function openPaymentModal(serviceType, serviceId, pricePerUnit, maxQuantity) {
+        const quantityInput = document.getElementById(`quantity-${serviceId}`);
+        const quantity = parseInt(quantityInput?.value || "0");
+
+        if (isNaN(quantity) || quantity <= 0 || quantity > maxQuantity) {
+            showMessageModal('error', 'Invalid Quantity', `Please enter a valid quantity between 1 and ${maxQuantity}.`);
+            return;
+        }
+
+        // ✅ Normalize service type before saving to selectedBooking
+        const serviceTypeMap = {
+            flights: "flight",
+            trains: "train",
+            buses: "bus",
+            movies: "movie",
+            events: "event"
+        };
+        const normalizedServiceType = serviceTypeMap[serviceType.toLowerCase()] || serviceType;
+
+        selectedBooking = {
+            serviceType: normalizedServiceType,
+            serviceId: serviceId,
+            quantity: quantity,
+            totalPrice: pricePerUnit * quantity,
+            pricePerUnit: pricePerUnit
+        };
+
+        paymentDetails.innerHTML = `
+            <p>Service Type: <strong>${normalizedServiceType}</strong></p>
+            <p>Quantity: <strong>${quantity}</strong></p>
+            <p>Total Price: <strong>₹${selectedBooking.totalPrice.toFixed(2)}</strong></p>
+            <p>Please confirm your booking and proceed to payment.</p>
+        `;
+
+        paymentModal.style.display = 'flex';
+    }
+
+
+
+    /*]]>*/
+</script>
+</body>
+</html>

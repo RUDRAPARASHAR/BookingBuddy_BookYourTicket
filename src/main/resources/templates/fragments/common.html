@@ -1,0 +1,69 @@
+<!-- ✅ Updated common.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:fragment="pageTitle">MultiServ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Header Fragment -->
+<header th:fragment="header">
+    <h1>BookingBuddy</h1>
+    <div class="header-actions">
+        <span th:if="${loggedIn}" class="welcome-text">Welcome, <strong th:text="${username}">User</strong>!</span>
+        <a th:if="${!loggedIn}" th:href="@{/login}" class="btn">Login</a>
+        <a th:if="${!loggedIn}" th:href="@{/signup}" class="btn">Sign Up</a>
+        <button th:if="${loggedIn}" id="logoutButton">Logout</button>
+    </div>
+</header>
+
+<!-- Footer Fragment -->
+<footer th:fragment="footer">
+    &copy; 2025 BookingBuddy — Your All-in-One Booking Solution 🚀
+</footer>
+
+<!-- Modals Fragment -->
+<div th:fragment="modals">
+    <!-- ✅ Payment Modal (with proper CSS class) -->
+    <div id="paymentModal" class="payment-modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closePaymentModal()">&times;</span>
+            <h3>Confirm Booking</h3>
+            <div id="paymentDetails">
+                <!-- Booking summary goes here -->
+            </div>
+            <button id="processPaymentButton">Confirm & Pay</button>
+        </div>
+    </div>
+
+    <!-- ✅ Message Modal (with proper CSS class) -->
+    <div id="messageModal" class="message-modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeMessageModal()">&times;</span>
+            <i id="messageIcon" class="icon fas fa-info-circle info"></i>
+            <h3 id="messageTitle">Info</h3>
+            <p id="messageText">Message goes here</p>
+            <button onclick="closeMessageModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- ✅ Loading Overlay (with proper CSS class) -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing your request...</p>
+    </div>
+</div>
+
+<!-- Common JS loaded in all pages -->
+<script th:src="@{/js/app.js}"></script>
+<script>
+    console.log('✅ Common modals loaded.');
+</script>
+
+</body>
+</html>
