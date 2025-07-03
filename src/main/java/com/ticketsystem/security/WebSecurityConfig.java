@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -46,14 +47,16 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers(
-                    "/api/auth/**",
-                    "/api/tickets/book",
-                    "/api/tickets/payment",
-                    "/api/tickets/updatePaymentStatus"
-                )
-            )
+        .csrf(csrf -> csrf
+        	    .ignoringRequestMatchers(
+        	        new AntPathRequestMatcher("/api/auth/**"),
+        	        new AntPathRequestMatcher("/api/tickets/book"),
+        	        new AntPathRequestMatcher("/api/tickets/payment"),
+        	        new AntPathRequestMatcher("/api/tickets/updatePaymentStatus"),
+        	        new AntPathRequestMatcher("/api/tickets/my") // ✅ Add this
+        	    )
+        	)
+
             .cors(cors -> cors.configurationSource(corsConfigSource()))
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
