@@ -27,9 +27,9 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public User createUser(User user) {
-        // Encode password before saving
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+//        // Encode password before saving
+//        String encodedPassword = passwordEncoder.encode(user.getPassword());
+//        user.setPassword(encodedPassword);
 
         // Assign ROLE_USER if no role provided
         if (user.getRoles() == null || user.getRoles().isEmpty()) {

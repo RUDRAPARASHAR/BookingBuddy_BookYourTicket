@@ -15,6 +15,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,13 +98,25 @@ public class WebSecurityConfig {
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
+            
+            
             .logout(logout -> logout
-                .logoutUrl("/api/auth/logout")
-                .logoutSuccessUrl("/login?logout=true")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            )
+            	    .logoutUrl("/api/auth/logout")
+            	    .logoutSuccessHandler((request, response, authentication) -> {
+            	        response.setStatus(HttpServletResponse.SC_OK); // ✅ Send 200 OK instead of redirect
+            	    })
+            	    .invalidateHttpSession(true)
+            	    .deleteCookies("JSESSIONID")
+            	    .permitAll()
+            	)
+
+//            .logout(logout -> logout
+//                .logoutUrl("/api/auth/logout")
+//                .logoutSuccessUrl("/login?logout=true")
+//                .invalidateHttpSession(true)
+//                .deleteCookies("JSESSIONID")
+//                .permitAll()
+//            )
             .exceptionHandling(exception -> exception
                 .accessDeniedPage("/access-denied")
             );
