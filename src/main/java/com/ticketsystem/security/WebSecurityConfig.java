@@ -47,16 +47,18 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers(
-                    new AntPathRequestMatcher("/api/auth/**"),
-                    new AntPathRequestMatcher("/api/tickets/book"),
-                    new AntPathRequestMatcher("/api/tickets/payment"),
-                    new AntPathRequestMatcher("/api/tickets/updatePaymentStatus"),
-                    new AntPathRequestMatcher("/api/tickets/my"),
-                    new AntPathRequestMatcher("/api/admin/cancel/**", "PUT")
-                )
-            )
+        .csrf(csrf -> csrf
+        	    .ignoringRequestMatchers(
+        	        new AntPathRequestMatcher("/api/auth/**"),
+        	        new AntPathRequestMatcher("/api/tickets/book"),
+        	        new AntPathRequestMatcher("/api/tickets/payment"),
+        	        new AntPathRequestMatcher("/api/tickets/updatePaymentStatus"),
+        	        new AntPathRequestMatcher("/api/tickets/my"),
+        	        new AntPathRequestMatcher("/api/admin/cancel/**", "PUT")
+
+        	    )
+        	)
+
             .cors(cors -> cors.configurationSource(corsConfigSource()))
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -105,9 +107,8 @@ public class WebSecurityConfig {
             )
             .exceptionHandling(exception -> exception
                 .accessDeniedPage("/access-denied")
-            );
-
-        http.authenticationProvider(authenticationProvider());
+            )
+            .authenticationProvider(authenticationProvider());
 
         return http.build();
     }
@@ -118,7 +119,7 @@ public class WebSecurityConfig {
         config.setAllowedOrigins(List.of(
             "http://localhost:8080",
             "http://localhost:3000",
-            "https://bookingbuddybookyourticket-production.up.railway.app"
+            "https://bookingbuddybookyourticket-production.up.railway.app" // ✅ add this
         ));
         config.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
@@ -134,155 +135,8 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
-
-
-
-
-
-
-
-
-
-//package com.ticketsystem.security;
-//
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.authentication.AuthenticationManager;
-//import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-//import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-//import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.config.http.SessionCreationPolicy;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.web.SecurityFilterChain;
-//import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-//import org.springframework.web.cors.CorsConfiguration;
-//import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-//
-//import java.util.Arrays;
-//import java.util.List;
-//
-//@Configuration
-//@EnableWebSecurity
-//@EnableMethodSecurity
-//public class WebSecurityConfig {
-//
-//    private final UserDetailsServiceImpl userDetailsService;
-//    private final PasswordEncoder passwordEncoder;
-//
-//    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder) {
-//        this.userDetailsService = userDetailsService;
-//        this.passwordEncoder = passwordEncoder;
-//    }
-//
-//    @Bean
-//    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-//        return config.getAuthenticationManager();
-//    }
-//
-//    @Bean
-//    public DaoAuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//        authProvider.setUserDetailsService(userDetailsService);
-//        authProvider.setPasswordEncoder(passwordEncoder);
-//        return authProvider;
-//    }
-//
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//        .csrf(csrf -> csrf
-//        	    .ignoringRequestMatchers(
-//        	        new AntPathRequestMatcher("/api/auth/**"),
-//        	        new AntPathRequestMatcher("/api/tickets/book"),
-//        	        new AntPathRequestMatcher("/api/tickets/payment"),
-//        	        new AntPathRequestMatcher("/api/tickets/updatePaymentStatus"),
-//        	        new AntPathRequestMatcher("/api/tickets/my"),
-//        	        new AntPathRequestMatcher("/api/admin/cancel/**", "PUT")
-//
-//        	    )
-//        	)
-//
-//            .cors(cors -> cors.configurationSource(corsConfigSource()))
-//            .sessionManagement(session -> session
-//                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-//                .invalidSessionUrl("/login?invalid-session=true")
-//            )
-//            .authorizeHttpRequests(auth -> auth
-//                .requestMatchers(
-//                    "/",
-//                    "/index",
-//                    "/login",
-//                    "/signup",
-//                    "/api/auth/**"
-//                ).permitAll()
-//                .requestMatchers(
-//                    "/css/**",
-//                    "/js/**",
-//                    "/images/**",
-//                    "/webjars/**"
-//                ).permitAll()
-//                .requestMatchers(
-//                    "/api/tickets/book",
-//                    "/api/tickets/payment",
-//                    "/api/tickets/updatePaymentStatus"
-//                ).permitAll()
-//                .requestMatchers(
-//                    "/booking",
-//                    "/my_tickets"
-//                ).authenticated()
-//                .requestMatchers("/admin/**").hasRole("ADMIN")
-//                .requestMatchers("/api/**").authenticated()
-//                .anyRequest().authenticated()
-//            )
-//            .formLogin(form -> form
-//                .loginPage("/login")
-//                .loginProcessingUrl("/api/auth/signin")
-//                .defaultSuccessUrl("/", true)
-//                .failureUrl("/login?error=true")
-//                .permitAll()
-//            )
-//            .logout(logout -> logout
-//                .logoutUrl("/api/auth/logout")
-//                .logoutSuccessUrl("/login?logout=true")
-//                .invalidateHttpSession(true)
-//                .deleteCookies("JSESSIONID")
-//                .permitAll()
-//            )
-//            .exceptionHandling(exception -> exception
-//                .accessDeniedPage("/access-denied")
-//            )
-//            .authenticationProvider(authenticationProvider());
-//
-//        return http.build();
-//    }
-//
-//    @Bean
-//    public UrlBasedCorsConfigurationSource corsConfigSource() {
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowedOrigins(List.of(
-//            "http://localhost:8080",
-//            "http://localhost:3000",
-//            "https://bookingbuddybookyourticket-production.up.railway.app" // ✅ add this
-//        ));
-//        config.setAllowedMethods(Arrays.asList(
-//            "GET", "POST", "PUT", "DELETE", "OPTIONS"
-//        ));
-//        config.setAllowedHeaders(Arrays.asList(
-//            "Authorization",
-//            "Content-Type",
-//            "X-CSRF-TOKEN"
-//        ));
-//        config.setAllowCredentials(true);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", config);
-//        return source;
-//    }
-//
-//}
 
 
 
