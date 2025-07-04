@@ -118,7 +118,8 @@ public class WebSecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
             "http://localhost:8080",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "https://bookingbuddybookyourticket-production.up.railway.app" // ✅ add this
         ));
         config.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
@@ -129,11 +130,12 @@ public class WebSecurityConfig {
             "X-CSRF-TOKEN"
         ));
         config.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
 
 
