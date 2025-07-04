@@ -12,6 +12,64 @@
     <div class="login-container">
         <h2>Login to MultiServ</h2>
         <form class="login-form" th:action="@{/api/auth/signin}" method="post">
+
+            <!-- ✅ Spring Security error and logout messages -->
+            <div th:if="${param.error}" class="message error-message">Invalid username or password</div>
+            <div th:if="${param.logout}" class="message success-message">You have been logged out successfully.</div>
+
+            <!-- Optional custom messages -->
+            <div th:if="${errorMessage}" class="message error-message" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="message success-message" th:text="${successMessage}"></div>
+
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <!-- Optional CSRF token: Uncomment ONLY if CSRF is NOT disabled for /api/auth/signin -->
+            <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /> -->
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="signup-link">
+            Don't have an account? <a th:href="@{/signup}">Sign Up</a>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: modals}"></div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<!-- !DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="~{fragments/common :: pageTitle}">Login - BookingBuddy</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/common :: header}"></header>
+
+    <div class="login-container">
+        <h2>Login to MultiServ</h2>
+        <form class="login-form" th:action="@{/api/auth/signin}" method="post">
             <div th:if="${errorMessage}" class="message error-message" th:text="${errorMessage}"></div>
             <div th:if="${successMessage}" class="message success-message" th:text="${successMessage}"></div>
 
@@ -36,7 +94,7 @@
     <div th:replace="~{fragments/common :: modals}"></div>
     <script th:src="@{/js/app.js}"></script>
 </body>
-</html>
+</html>-->
 
 
 
